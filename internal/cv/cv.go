@@ -10,15 +10,16 @@ import (
 )
 
 type CV struct {
-	Name              string
-	Summary           string
-	Contact           Contact
-	Links             map[string]string
-	Acronyms          map[string]string
-	Skills            []Skill
-	EmploymentHistory []Employment `yaml:"employment-history"`
-	EducationHistory  []Education  `yaml:"education-history"`
-	Awards            []string
+	Name                string
+	Summary             string
+	Contact             Contact
+	Links               map[string]string
+	Acronyms            map[string]string
+	Skills              []Skill
+	EmploymentHistory   []Employment   `yaml:"employment-history"`
+	EducationHistory    []Education    `yaml:"education-history"`
+	VolunteeringHistory []Volunteering `yaml:"volunteering"`
+	Awards              []string
 }
 
 type Contact struct {
@@ -53,6 +54,14 @@ type Education struct {
 	Degree             string
 }
 
+// TODO: Test all functionality related to volunteering structs
+type Volunteering struct {
+	Institute   string
+	Event       string
+	Description string
+	Dates       []time.Time
+}
+
 // CVVisitor is an interface for CV visitors
 type CVVisitor interface {
 	VisitCV(*CV)
@@ -60,6 +69,7 @@ type CVVisitor interface {
 	VisitSkills([]Skill)
 	VisitEmploymentHistory([]Employment)
 	VisitEducationHistory([]Education)
+	VisitVolunteeringHistory([]Volunteering)
 }
 
 func (cv *CV) Accept(cvv CVVisitor) {
@@ -68,6 +78,7 @@ func (cv *CV) Accept(cvv CVVisitor) {
 	cvv.VisitSkills(cv.Skills)
 	cvv.VisitEmploymentHistory(cv.EmploymentHistory)
 	cvv.VisitEducationHistory(cv.EducationHistory)
+	cvv.VisitVolunteeringHistory(cv.VolunteeringHistory)
 }
 
 // TODO: Use an embedded type with an interface
@@ -161,6 +172,16 @@ func (cvhlv *CVHyperLinkVisitor) VisitEducationHistory(educationHistory []Educat
 		educationHistory[i].Institute = replaceLinksWithAnchors(education.Institute)
 	}
 }
+
+func (cvhlv *CVHyperLinkVisitor) VisitVolunteeringHistory(volunteeringHistory []Volunteering) {
+	for i, volunteering := range volunteeringHistory {
+		volunteeringHistory[i].Description = replaceLinksWithAnchors(volunteering.Description)
+		volunteeringHistory[i].Institute = replaceLinksWithAnchors(volunteering.Institute)
+		volunteeringHistory[i].Event = replaceLinksWithAnchors(volunteering.Event)
+	}
+}
+
+// TODO: Create a visitor for replacing underscored text with italics
 
 // Read reads a CV data YAML string into a CV struct
 func ReadFile(fp string) (*CV, error) {

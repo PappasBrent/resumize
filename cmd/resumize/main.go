@@ -11,6 +11,7 @@ import (
 )
 
 // TODO: Add references
+// TODO: Add explanation on how to use the program
 func main() {
 	args, err := args.Parse(os.Args[1:])
 	if err != nil {
